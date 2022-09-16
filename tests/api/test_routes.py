@@ -34,11 +34,6 @@ def test_create_user_endpoint_returns_expected_response_data(client):
     response = client.post("/users/create", json=mock_user_data)
     response_data = response.json
 
-    # assert all((
-    #     type(response_data.get("id")) == int,
-    #     response_data.get("email") == email,
-    #     response_data.get("username") == username,
-    # ))
     pytest.assume(response_data.get("email") == mock_user_data["email"])
     pytest.assume(response_data.get("username") == mock_user_data["username"])
     pytest.assume(type(response_data.get("id")) == int)
