@@ -1,4 +1,5 @@
 from flask import Blueprint, request
+from sqlalchemy import or_
 
 from db import db
 from api.models.user import User
@@ -18,15 +19,21 @@ def users():
 def create_user():
     data = request.json
     if not data:
-        return {"message": "Request body could not be parsed as JSON"}, 400
+        return {"msg": "Request body could not be parsed as JSON"}, 400
 
     username = data.get("username")
     email = data.get("email")
     response_content = {"username": username, "email": email}
-    # if not all((username, email)):
-    #     return {"message": f"Username and email required. Received: {response_content}"}, 400
+    if not all((username, email)):
+        return {"msg": f"Username and email required. Received: {response_content}"}, 400
 
-    # TODO: check for duplicate record values before creating user
+    existing_user = User.query.filter(or_(
+        User.username == username,
+        User.email == email
+    )).first()
+    if existing_user:
+        return {"msg": "Username or email already used"}, 400
+
     user = User(email=email, username=username)
     db.session.add(user)
     db.session.commit()
