@@ -1,5 +1,4 @@
 from flask import Blueprint, request
-from sqlalchemy import or_
 
 from db import db
 from api.models.user import User
@@ -27,10 +26,9 @@ def create_user():
     if not all((username, email)):
         return {"msg": f"Username and email required. Received: {response_content}"}, 400
 
-    existing_user = User.query.filter(or_(
-        User.username == username,
-        User.email == email
-    )).first()
+    existing_user = User.query.filter(
+        (User.username == username) | (User.email == email),
+    ).first()
     if existing_user:
         return {"msg": "Username or email already used"}, 400
 
